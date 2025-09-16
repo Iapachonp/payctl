@@ -1,0 +1,15 @@
+CREATE TABLE IF NOT EXISTS companies (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    industry TEXT NOT NULL,
+    website TEXT UNIQUE NOT NULL,
+    location TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS payments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    cron TEXT NOT NULL,
+    url TEXT NOT NULL,
+    companyid INT REFERENCES companies(id) ON DELETE CASCADE
+); 

@@ -21,22 +21,27 @@ var createPaymentscmd = &cobra.Command{
 		name, _ := cmd.Flags().GetString("name")
 		cron, _ := cmd.Flags().GetString("cron")
 		url, _ := cmd.Flags().GetString("url")
-		if (cmd.Flags().Lookup("companyid").Changed) && (cmd.Flags().Lookup("groupid").Changed) {
-			companyid, _ := cmd.Flags().GetInt("companyid")
-			groupid, _ := cmd.Flags().GetInt("groupid")
-			pmt = fmt.Sprintf("INSERT INTO payments (name, cron, url, companyid, paymentgroupid) VALUES ('%s', '%s', '%s', '%d', '%d');", name, cron, url, companyid, groupid)
-		} else {
-			if cmd.Flags().Lookup("companyid").Changed {
-				companyid, _ := cmd.Flags().GetInt("companyid")
-				pmt = fmt.Sprintf("INSERT INTO payments (name, cron, url, companyid) VALUES ('%s', '%s', '%s', '%d');", name, cron, url, companyid)
-			} else {
-				if cmd.Flags().Lookup("groupid").Changed {
-					paymentgroupid, _ := cmd.Flags().GetInt("groupid")
-					pmt = fmt.Sprintf("INSERT INTO payments (name, cron, url, paymentgroupid) VALUES ('%s', '%s', '%s', '%d');", name, cron, url, paymentgroupid)
-				} else {
-					pmt = fmt.Sprintf("INSERT INTO payments (name, cron, url) VALUES ('%s', '%s', '%s');", name, cron, url)
-				}
-			}
+		switch {
+			case cmd.Flags().Lookup("companyid").Changed && cmd.Flags().Lookup("groupid").Changed:
+			    companyid, _ := cmd.Flags().GetInt("companyid")
+			    groupid, _ := cmd.Flags().GetInt("groupid")
+			    pmt = fmt.Sprintf(
+				"INSERT INTO payments (name, cron, url, companyid, paymentgroupid) VALUES ('%s', '%s', '%s', '%d', '%d');",
+				name, cron, url, companyid, groupid,)
+			case cmd.Flags().Lookup("companyid").Changed:
+			    companyid, _ := cmd.Flags().GetInt("companyid")
+			    pmt = fmt.Sprintf(
+				"INSERT INTO payments (name, cron, url, companyid) VALUES ('%s', '%s', '%s', '%d');",
+				name, cron, url, companyid,)
+			case cmd.Flags().Lookup("groupid").Changed:
+			    paymentgroupid, _ := cmd.Flags().GetInt("groupid")
+			    pmt = fmt.Sprintf(
+				"INSERT INTO payments (name, cron, url, paymentgroupid) VALUES ('%s', '%s', '%s', '%d');",
+				name, cron, url, paymentgroupid,)
+			default:
+			    pmt = fmt.Sprintf(
+				"INSERT INTO payments (name, cron, url) VALUES ('%s', '%s', '%s');",
+				name, cron, url,)
 		}
 		fmt.Println(pmt)
 		db := database.Open()

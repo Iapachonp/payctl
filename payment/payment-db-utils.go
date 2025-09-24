@@ -28,16 +28,48 @@ func GetCompany(companyId int) (Companydb, error) {
 }
 
 
+func GetPayments()([]Payment, error){
+	db := database.Open()
+	var payments[] Payment 
+	query := "select p.id, p.Name, p.Cron, p.Url, c.name, g.name from payments p left join companies c on p.companyid = c.id left join paymentgroup g on p.paymentgroupid = g.id;"
+	pmts, err := db.Query(query)
+	defer pmts.Close()
+	if err != nil {
+		return nil, fmt.Errorf("error fetching payments: %w", err)
+	}
+	for pmts.Next() {
+		var pmt Payment 
+		err := pmts.Scan(&pmt.Id, &pmt.Name, &pmt.Cron, &pmt.Url, &pmt.Company, &pmt.Group)
+		if err != nil  { fmt.Printf("Error unmarshall Payment: %v", err)}
+		na := "n/a"
+		if pmt.Company == nil {
+			pmt.Company = &na
+		}
+		if pmt.Group == nil {
+			pmt.Group = &na
+		}
+		payments = append(payments, pmt)
+	}
+	return payments, nil
+}
+
+
 func GetPayment(paymentId int)(Payment, error){
 	db := database.Open()
 	var payment Payment 
-	query := "select p.id, p.Name, p.Cron, p.Url, c.name, g.name from payments p join companies c on p.companyid = c.id join paymentgroup g on p.paymentgroupid = g.id where p.id = ?"
+	query := "select p.id, p.Name, p.Cron, p.Url, c.name, g.name from payments p left join companies c on p.companyid = c.id left join paymentgroup g on p.paymentgroupid = g.id where p.id = ?"
 	err := db.QueryRow(query, paymentId).Scan(&payment.Id, &payment.Name, &payment.Cron, &payment.Url, &payment.Company, &payment.Group)
+	na := "n/a"
+	if payment.Company == nil {
+		payment.Company = &na
+	}
+	if payment.Group == nil {
+		payment.Group = &na
+	}
 	if err != nil {
 		return Payment{}, fmt.Errorf("error fetching payment: %w", err)
 	}
 	return payment, nil
-
 }
 
 func GetPaymentdb(paymentId int) (Paymentdb, error) {

@@ -50,14 +50,16 @@ var createPaymentscmd = &cobra.Command{
 			fmt.Printf("Error creating Payment: %v", err)
 		}
 		paymentid, _ := paymentexec.LastInsertId()
+		fmt.Println(paymentid)
 		pmto, err := payment.GetPayment(int(paymentid))
 		if err != nil {
 			fmt.Printf("Error Fetching new Payment: %v", err)
 		}
+		fmt.Println("yuju")
 		tableRowHeader := table.Row{"id", "Name", "Cron", "Url", "Company", "Group"}
 		tableCaption := "New payment created"
 		payList := []table.Row{}
-		payList = append(payList, table.Row{pmto.Id, pmto.Name, pmto.Cron, pmto.Url, pmto.Company, pmto.Group})
+		payList = append(payList, table.Row{pmto.Id, pmto.Name, pmto.Cron, pmto.Url, *pmto.Company, *pmto.Group})
 		tables.PrintTable(tableRowHeader, tableCaption, payList)
 	},
 }

@@ -11,5 +11,5 @@ CREATE TABLE IF NOT EXISTS payments (
     name TEXT NOT NULL,
     cron TEXT NOT NULL,
     url TEXT NOT NULL,
-    companyid INT REFERENCES companies(id) ON DELETE CASCADE
+    companyid INTEGER 
 ); 

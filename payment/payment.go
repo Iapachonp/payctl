@@ -6,8 +6,8 @@ type Payment struct {
 	Description string
 	Cron string
 	Url string
-	Company string
-	Group string
+	Company *string
+	Group *string
 }
 
 type Paymentdb struct {

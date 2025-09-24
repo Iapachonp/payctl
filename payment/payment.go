@@ -24,3 +24,12 @@ type PaymentGroupdb struct {
 	Name string
 	Description string
 }
+
+type Companydb struct {
+	Id int
+	Name string
+	Industry string   
+	Website string
+	Location string
+}	
+

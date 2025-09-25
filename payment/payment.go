@@ -28,6 +28,7 @@ type PaymentGroupdb struct {
 type Companydb struct {
 	Id int
 	Name string
+	Description string
 	Industry string   
 	Website string
 	Location string

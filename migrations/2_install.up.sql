@@ -1,6 +1,6 @@
 -- Add description columns
-ALTER TABLE companies ADD COLUMN description TEXT;
-ALTER TABLE payments ADD COLUMN description TEXT;
+ALTER TABLE companies ADD COLUMN description TEXT NOT NULL;
+ALTER TABLE payments ADD COLUMN description TEXT NOT NULL;
 
 -- Create new table
 CREATE TABLE IF NOT EXISTS paymentGroup (

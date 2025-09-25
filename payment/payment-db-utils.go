@@ -27,6 +27,28 @@ func GetCompany(companyId int) (Companydb, error) {
 	return company, nil
 }
 
+func GetCompanies(limit int) ([]Companydb, error) {
+	db := database.Open()
+	var companies []Companydb
+	var query string
+	if limit > 0 {query = "select * from companies limit ?" } else {query = "select * from companies"} 
+	cmps, err := db.Query(query, limit)
+	defer cmps.Close()
+	if err != nil {
+		return nil, fmt.Errorf("error fetching payments: %w", err)
+	}
+	for cmps.Next() {
+		var company Companydb 
+		err = cmps.Scan(&company.Id, &company.Name, &company.Description, &company.Industry, &company.Location, &company.Website)
+		if err != nil {
+			return nil, fmt.Errorf("Error unmarshall Company: %w", err)
+		}
+		companies = append(companies, company )
+	}
+	
+	return companies, nil
+}
+
 
 func GetPayments()([]Payment, error){
 	db := database.Open()

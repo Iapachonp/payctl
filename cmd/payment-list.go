@@ -18,7 +18,14 @@ var listPaymentscmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		// Command logic here
 		fmt.Println("listing available payments" )
-		payments, err := payment.GetPayments()
+		var limit int
+		switch {
+			case cmd.Flags().Lookup("limit").Changed:
+				limit, _ = cmd.Flags().GetInt("limit")
+			default:
+				limit = 0
+		}
+		payments, err := payment.GetPayments(limit)
 		if err != nil  { fmt.Printf("Error fetching Payments: %v", err)}
 		tableRowHeader := table.Row{"id", "Name", "Description", "Cron", "Url", "Company", "Group"}
 		tableCaption   := "payments list"
@@ -33,4 +40,5 @@ var listPaymentscmd = &cobra.Command{
 
 func init()  {
 	paymentcmd.AddCommand(listPaymentscmd)
+	listPaymentscmd.PersistentFlags().Int("limit", 0, "Limit the number of the list of payments.")
 }

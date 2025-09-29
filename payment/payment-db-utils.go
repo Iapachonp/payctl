@@ -50,11 +50,16 @@ func GetCompanies(limit int) ([]Companydb, error) {
 }
 
 
-func GetPayments()([]Payment, error){
+func GetPayments(limit int)([]Payment, error){
 	db := database.Open()
-	var payments[] Payment 
-	query := "select p.id, p.Name, p.Description, p.Cron, p.Url, c.name, g.name from payments p left join companies c on p.companyid = c.id left join paymentgroup g on p.paymentgroupid = g.id;"
-	pmts, err := db.Query(query)
+	var payments[] Payment
+	var query string
+	if limit > 0 {
+		query = "select p.id, p.Name, p.Description, p.Cron, p.Url, c.name, g.name from payments p left join companies c on p.companyid = c.id left join paymentgroup g on p.paymentgroupid = g.id limit ?;" 
+	} else {
+		query = "select p.id, p.Name, p.Description, p.Cron, p.Url, c.name, g.name from payments p left join companies c on p.companyid = c.id left join paymentgroup g on p.paymentgroupid = g.id;"
+	}
+	pmts, err := db.Query(query, limit)
 	defer pmts.Close()
 	if err != nil {
 		return nil, fmt.Errorf("error fetching payments: %w", err)

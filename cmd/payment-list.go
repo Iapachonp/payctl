@@ -20,11 +20,11 @@ var listPaymentscmd = &cobra.Command{
 		fmt.Println("listing available payments" )
 		payments, err := payment.GetPayments()
 		if err != nil  { fmt.Printf("Error fetching Payments: %v", err)}
-		tableRowHeader := table.Row{"id", "Name", "Cron", "Url", "Company", "Group"}
+		tableRowHeader := table.Row{"id", "Name", "Description", "Cron", "Url", "Company", "Group"}
 		tableCaption   := "payments list"
 		payList := []table.Row{}
 		for _, pmt := range payments {
-			payList = append(payList, table.Row{pmt.Id, pmt.Name, pmt.Cron, pmt.Url, *pmt.Company, *pmt.Group})
+			payList = append(payList, table.Row{pmt.Id, pmt.Name, pmt.Description, pmt.Cron, pmt.Url, *pmt.Company, *pmt.Group})
 		}
 		tables.PrintTable(tableRowHeader, tableCaption, payList)
 	},

@@ -53,7 +53,7 @@ func GetCompanies(limit int) ([]Companydb, error) {
 func GetPayments()([]Payment, error){
 	db := database.Open()
 	var payments[] Payment 
-	query := "select p.id, p.Name, p.Cron, p.Url, c.name, g.name from payments p left join companies c on p.companyid = c.id left join paymentgroup g on p.paymentgroupid = g.id;"
+	query := "select p.id, p.Name, p.Description, p.Cron, p.Url, c.name, g.name from payments p left join companies c on p.companyid = c.id left join paymentgroup g on p.paymentgroupid = g.id;"
 	pmts, err := db.Query(query)
 	defer pmts.Close()
 	if err != nil {
@@ -61,7 +61,7 @@ func GetPayments()([]Payment, error){
 	}
 	for pmts.Next() {
 		var pmt Payment 
-		err := pmts.Scan(&pmt.Id, &pmt.Name, &pmt.Cron, &pmt.Url, &pmt.Company, &pmt.Group)
+		err := pmts.Scan(&pmt.Id, &pmt.Name, &pmt.Description, &pmt.Cron, &pmt.Url, &pmt.Company, &pmt.Group)
 		if err != nil  { fmt.Printf("Error unmarshall Payment: %v", err)}
 		na := "n/a"
 		if pmt.Company == nil {

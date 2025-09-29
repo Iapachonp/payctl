@@ -21,27 +21,28 @@ var createPaymentscmd = &cobra.Command{
 		name, _ := cmd.Flags().GetString("name")
 		cron, _ := cmd.Flags().GetString("cron")
 		url, _ := cmd.Flags().GetString("url")
+		description, _ := cmd.Flags().GetString("description")
 		switch {
 			case cmd.Flags().Lookup("companyid").Changed && cmd.Flags().Lookup("groupid").Changed:
 			    companyid, _ := cmd.Flags().GetInt("companyid")
 			    groupid, _ := cmd.Flags().GetInt("groupid")
 			    pmt = fmt.Sprintf(
-				"INSERT INTO payments (name, cron, url, companyid, paymentgroupid) VALUES ('%s', '%s', '%s', '%d', '%d');",
-				name, cron, url, companyid, groupid,)
+				"INSERT INTO payments (name, cron, url,description, companyid, paymentgroupid) VALUES ('%s', '%s', '%s', '%s', '%d', '%d');",
+				name, cron, url, description, companyid, groupid,)
 			case cmd.Flags().Lookup("companyid").Changed:
 			    companyid, _ := cmd.Flags().GetInt("companyid")
 			    pmt = fmt.Sprintf(
-				"INSERT INTO payments (name, cron, url, companyid) VALUES ('%s', '%s', '%s', '%d');",
-				name, cron, url, companyid,)
+				"INSERT INTO payments (name, cron, url,description, companyid) VALUES ('%s', '%s', '%s', '%s', '%d');",
+				name, cron, url, description, companyid,)
 			case cmd.Flags().Lookup("groupid").Changed:
 			    paymentgroupid, _ := cmd.Flags().GetInt("groupid")
 			    pmt = fmt.Sprintf(
-				"INSERT INTO payments (name, cron, url, paymentgroupid) VALUES ('%s', '%s', '%s', '%d');",
-				name, cron, url, paymentgroupid,)
+				"INSERT INTO payments (name, cron, url,description, paymentgroupid) VALUES ('%s', '%s', '%s', '%s', '%d');",
+				name, cron, url, description, paymentgroupid,)
 			default:
 			    pmt = fmt.Sprintf(
-				"INSERT INTO payments (name, cron, url) VALUES ('%s', '%s', '%s');",
-				name, cron, url,)
+				"INSERT INTO payments (name, cron, url, description) VALUES ('%s', '%s', '%s', '%s');",
+				name, cron, url, description)
 		}
 		fmt.Println(pmt)
 		db := database.Open()
@@ -56,7 +57,7 @@ var createPaymentscmd = &cobra.Command{
 			fmt.Printf("Error Fetching new Payment: %v", err)
 		}
 		fmt.Println("yuju")
-		tableRowHeader := table.Row{"id", "Name", "Cron", "Url", "Company", "Group"}
+		tableRowHeader := table.Row{"id", "Name", "Description", "Cron", "Url", "Company", "Group"}
 		tableCaption := "New payment created"
 		payList := []table.Row{}
 		payList = append(payList, table.Row{pmto.Id, pmto.Name, pmto.Cron, pmto.Url, *pmto.Company, *pmto.Group})
@@ -70,6 +71,8 @@ func init() {
 	paymentcmd.MarkFlagRequired("name")
 	paymentcmd.PersistentFlags().String("cron", "", "Name of the payment object to create.")
 	paymentcmd.MarkFlagRequired("cron")
+	paymentcmd.PersistentFlags().String("description", "", "Description of the payment object to create.")
+	paymentcmd.MarkFlagRequired("description")
 	paymentcmd.PersistentFlags().String("url", "", "Name of the payment object to create.")
 	paymentcmd.MarkFlagRequired("url")
 	// paymentcmd.PersistentFlags().String("group", "", "Name of the payment object to create.")

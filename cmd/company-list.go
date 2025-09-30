@@ -18,7 +18,7 @@ var listCompaniescmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		// Command logic here
 		fmt.Println("listing available companies" )
-		var companies []payment.Companydb
+		var companies []payment.Company
 		var err error
 		switch {
 			case cmd.Flags().Lookup("limit").Changed:
@@ -33,7 +33,7 @@ var listCompaniescmd = &cobra.Command{
 		tableCaption   := "companies list"
 		comList := []table.Row{}
 		for _, cmp := range companies {
-			comList = append(comList, table.Row{cmp.Id, cmp.Name, cmp.Description, cmp.Industry, cmp.Website, cmp.Location})
+			comList = append(comList, table.Row{cmp.Id, cmp.Name, cmp.Description, cmp.Industry, *cmp.Website, *cmp.Location})
 		}
 		tables.PrintTable(tableRowHeader, tableCaption, comList)
 	},

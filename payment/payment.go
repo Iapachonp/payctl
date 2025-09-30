@@ -10,6 +10,16 @@ type Payment struct {
 	Group *string
 }
 
+type Company struct {
+	Id int
+	Name string
+	Description string
+	Industry string   
+	Website *string
+	Location *string
+}
+
+
 type Paymentdb struct {
 	Id int
 	Name string

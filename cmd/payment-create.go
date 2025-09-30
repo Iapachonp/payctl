@@ -56,7 +56,6 @@ var createPaymentscmd = &cobra.Command{
 		if err != nil {
 			fmt.Printf("Error Fetching new Payment: %v", err)
 		}
-		fmt.Println("yuju")
 		tableRowHeader := table.Row{"id", "Name", "Description", "Cron", "Url", "Company", "Group"}
 		tableCaption := "New payment created"
 		payList := []table.Row{}

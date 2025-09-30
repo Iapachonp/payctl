@@ -16,20 +16,30 @@ func GetGroup(groupId int) (PaymentGroupdb, error) {
 	return group, nil
 }
 
-func GetCompany(companyId int) (Companydb, error) {
+func GetCompany(companyId int) (Company, error) {
 	db := database.Open()
-	var company Companydb 
+	var company Company 
 	query := "select * from companies where id = ?"
-	err := db.QueryRow(query, companyId).Scan(&company.Id, &company.Name, &company.Industry, &company.Website, &company.Location)
+	err := db.QueryRow(query, companyId).Scan(&company.Id, &company.Name,&company.Industry, &company.Website, &company.Location, &company.Description)
 	if err != nil {
-		return Companydb{}, fmt.Errorf("error fetching company: %w", err)
+		return Company{}, fmt.Errorf("error fetching company: %w", err)
+	}
+	na := "n/a"
+	if company.Location == nil {
+		company.Location = &na
+	}
+	if company.Website == nil {
+		company.Website = &na
+	}
+	if err != nil {
+		return Company{}, fmt.Errorf("error fetching company: %w", err)
 	}
 	return company, nil
 }
 
-func GetCompanies(limit int) ([]Companydb, error) {
+func GetCompanies(limit int) ([]Company, error) {
 	db := database.Open()
-	var companies []Companydb
+	var companies []Company
 	var query string
 	if limit > 0 {query = "select * from companies limit ?" } else {query = "select * from companies"} 
 	cmps, err := db.Query(query, limit)
@@ -38,10 +48,17 @@ func GetCompanies(limit int) ([]Companydb, error) {
 		return nil, fmt.Errorf("error fetching payments: %w", err)
 	}
 	for cmps.Next() {
-		var company Companydb 
-		err = cmps.Scan(&company.Id, &company.Name, &company.Description, &company.Industry, &company.Location, &company.Website)
+		var company Company 
+		err = cmps.Scan(&company.Id, &company.Name, &company.Industry, &company.Website, &company.Location, &company.Description)
 		if err != nil {
 			return nil, fmt.Errorf("Error unmarshall Company: %w", err)
+		}
+		na := "n/a"
+		if company.Website == nil {
+			company.Website = &na
+		}
+		if company.Location == nil {
+			company.Location = &na
 		}
 		companies = append(companies, company )
 	}

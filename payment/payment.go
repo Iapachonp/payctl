@@ -19,6 +19,12 @@ type Company struct {
 	Location *string
 }
 
+type Group struct {
+	Id int
+	Name string
+	Description string
+}
+
 
 type Paymentdb struct {
 	Id int

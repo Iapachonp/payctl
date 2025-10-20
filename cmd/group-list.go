@@ -27,18 +27,18 @@ var listGroupscmd = &cobra.Command{
 		}
 		groups, err := payment.GetGroups(limit)
 		if err != nil  { fmt.Printf("Error fetching Groups: %v", err)}
-		tableRowHeader := table.Row{"id", "Name", "Description", "Cron", "Url", "Company", "Group"}
+		tableRowHeader := table.Row{"id", "Name", "Description"}
 		tableCaption   := "groups list"
-		payList := []table.Row{}
-		for _, pmt := range groups {
-			payList = append(payList, table.Row{pmt.Id, pmt.Name, pmt.Description, pmt.Cron, pmt.Url, *pmt.Company, *pmt.Group})
+		groupList := []table.Row{}
+		for _, grp := range groups {
+			groupList = append(groupList, table.Row{grp.Id, grp.Name, grp.Description})
 		}
-		tables.PrintTable(tableRowHeader, tableCaption, payList)
+		tables.PrintTable(tableRowHeader, tableCaption, groupList)
 	},
 } 
 
 
 func init()  {
-	paymentcmd.AddCommand(listGroupscmd)
+	groupcmd.AddCommand(listGroupscmd)
 	listGroupscmd.PersistentFlags().Int("limit", 0, "Limit the number of the list of groups.")
 }

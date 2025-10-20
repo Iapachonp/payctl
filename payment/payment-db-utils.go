@@ -20,29 +20,22 @@ func GetGroups(limit int) ([]PaymentGroupdb, error) {
 	db := database.Open()
 	var groups []PaymentGroupdb
 	var query string
-	if limit > 0 {query = "select * from groups limit ?" } else {query = "select * from companies"} 
-	cmps, err := db.Query(query, limit)
-	defer cmps.Close()
+	if limit > 0 {query = "select * from paymentGroup limit ?" } else {query = "select * from paymentGroup"} 
+	grps, err := db.Query(query, limit)
+	defer grps.Close()
 	if err != nil {
 		return nil, fmt.Errorf("error fetching payments: %w", err)
 	}
-	for cmps.Next() {
-		var company Company 
-		err = cmps.Scan(&company.Id, &company.Name, &company.Industry, &company.Website, &company.Location, &company.Description)
+	for grps.Next() {
+		var group PaymentGroupdb 
+		err = grps.Scan(&group.Id, &group.Name, &group.Description)
 		if err != nil {
 			return nil, fmt.Errorf("Error unmarshall Company: %w", err)
 		}
-		na := "n/a"
-		if company.Website == nil {
-			company.Website = &na
-		}
-		if company.Location == nil {
-			company.Location = &na
-		}
-		companies = append(companies, company )
+		groups = append(groups, group )
 	}
 	
-	return companies, nil
+	return groups, nil
 }
 
 

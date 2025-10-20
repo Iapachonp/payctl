@@ -12,8 +12,8 @@ import (
 var createGroupcmd = &cobra.Command{
 	Use:     "create",
 	Aliases: []string{"cr", "new", "apply"},
-	Short:   "Create a payment",
-	Long:    "Create a new payment object",
+	Short:   "Create a group",
+	Long:    "Create a new group object",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Command logic here
 		var grp string

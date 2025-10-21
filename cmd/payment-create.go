@@ -44,22 +44,28 @@ var createPaymentscmd = &cobra.Command{
 				"INSERT INTO payments (name, cron, url, description) VALUES ('%s', '%s', '%s', '%s');",
 				name, cron, url, description)
 		}
-		fmt.Println(pmt)
+		// fmt.Println(pmt)
 		db := database.Open()
 		paymentexec, err := db.Exec(pmt)
 		if err != nil {
 			fmt.Printf("Error creating Payment: %v", err)
 		}
 		paymentid, _ := paymentexec.LastInsertId()
-		fmt.Println(paymentid)
+		// fmt.Println(paymentid)
 		pmto, err := payment.GetPayment(int(paymentid))
 		if err != nil {
 			fmt.Printf("Error Fetching new Payment: %v", err)
 		}
-		tableRowHeader := table.Row{"id", "Name", "Description", "Cron", "Url", "Company", "Group"}
+		tableRowHeader := table.Row{"id", "Name", "Description", "Status", "Cron", "Url", "Company", "Group"}
 		tableCaption := "New payment created"
 		payList := []table.Row{}
-		payList = append(payList, table.Row{pmto.Id, pmto.Name, pmto.Cron, pmto.Url, *pmto.Company, *pmto.Group})
+		var status string
+		if pmto.Status { 
+			status = "enabled" 
+		} else { 
+			status = "disabled"
+		}
+		payList = append(payList, table.Row{pmto.Id, pmto.Name, pmto.Description, status, pmto.Cron, pmto.Url, *pmto.Company, *pmto.Group})
 		tables.PrintTable(tableRowHeader, tableCaption, payList)
 	},
 }

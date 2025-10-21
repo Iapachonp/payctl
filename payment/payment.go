@@ -8,6 +8,7 @@ type Payment struct {
 	Url string
 	Company *string
 	Group *string
+	Status bool 
 }
 
 type Company struct {
@@ -29,10 +30,12 @@ type Group struct {
 type Paymentdb struct {
 	Id int
 	Name string
+	Description string
 	Cron string
 	Url string
 	Companyid int
 	PaymentGroup int
+	Status bool 
 }
 
 type PaymentGroupdb struct {

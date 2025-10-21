@@ -11,5 +11,6 @@ CREATE TABLE IF NOT EXISTS payments (
     name TEXT NOT NULL,
     cron TEXT NOT NULL,
     url TEXT NOT NULL,
-    companyid INTEGER 
+    companyid INTEGER, 
+    status BOOLEAN NOT NULL CHECK (status IN (0, 1)) DEFAULT 1
 ); 

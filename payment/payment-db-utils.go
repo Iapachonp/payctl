@@ -3,6 +3,9 @@ package payment
 import (
 	"fmt"
 	"payctl/database"
+	"strings"
+	"time"
+	"strconv"
 )
 
 func GetGroup(groupId int) (PaymentGroupdb, error) {
@@ -149,3 +152,79 @@ func GetPaymentdb(paymentId int) (Paymentdb, error) {
 	}
 	return payment, nil
 }
+
+
+func GetTodaypayments()([]Payment, error){
+
+	payments, err := GetPayments(0)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching payments: %w", err)
+	}
+	var todayPayments []Payment
+	for _, pay := range payments {
+		today := time.Now()
+		if nextExecution(pay.Cron, today, 1 )[0] == today {
+			todayPayments = append(todayPayments, pay)
+		}
+	}
+	return todayPayments, nil
+}
+
+
+func nextExecution(cron string, date time.Time, deep int) ([]time.Time, error)  {
+	var Cron Cron
+	cronS := strings.Split(cron, " ")
+	Cron.Hour = cronS[0]
+	Cron.Minute = cronS[1]
+	Cron.Day = cronS[2]
+	Cron.Month = cronS[3]
+	Cron.Weeday = cronS[4]
+	
+	// magic regex to get logic in splitt 
+	// 
+	// "(?:\*|[0-9]+-[0-9]+)/[0-9]+|(?:\*|[0-9]+)/[0-9]+|[0-9]+-[0-9]+|[0-9]+|\*"
+
+
+		
+	for i := 0; i < deep; i++ {
+		
+		if Cron.Day == "*" {
+			Nday := time.Now().Day() + i
+		} else { 
+		if strings.Contains(Cron.Day, "*"){
+			step, _ := strings.CutPrefix(Cron.Day, "*/")  
+			istep, err := strconv.Atoi(step)
+			if err != nil {
+			return nil, fmt.Errorf("error converting step to int: %w", err)
+			}
+			Nday := time.Now().Day() + (i * int(istep))
+		} else {
+			if strings.Contains(Cron.Day, "-"){
+			limits := strings.split(Cron.Day, "-")  
+			istep, err := strconv.Atoi(step)
+			if err != nil {
+			return nil, fmt.Errorf("error converting step to int: %w", err)
+			}
+			Nday := time.Now().Day() + (i * int(istep))
+		}
+
+		}
+		}
+		if Cron.Month == "*" {
+			Nmonth := time.Now().Month()
+		} else { 
+		if strings.Contains(Cron.Month, "*"){
+			step, _ := strings.CutPrefix(Cron.Month, "*/")  
+			istep, err := strconv.Atoi(step)
+			if err != nil {
+			return nil, fmt.Errorf("error converting step to int: %w", err)
+			}
+			Nmonth := time.Now().Month() + (i * int(istep))
+
+		}
+		
+	}
+}
+
+
+

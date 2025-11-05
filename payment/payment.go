@@ -53,3 +53,11 @@ type Companydb struct {
 	Location string
 }	
 
+
+type Cron struct {
+	Minute string
+	Hour string
+	Day string
+	Month string
+	Weeday string
+}

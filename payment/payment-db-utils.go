@@ -3,9 +3,7 @@ package payment
 import (
 	"fmt"
 	"payctl/database"
-	"strings"
 	"time"
-	"strconv"
 )
 
 func GetGroup(groupId int) (PaymentGroupdb, error) {
@@ -154,77 +152,42 @@ func GetPaymentdb(paymentId int) (Paymentdb, error) {
 }
 
 
-func GetTodaypayments()([]Payment, error){
-
+func GetTodaypayments()([]Payment, []time.Time ,error){
 	payments, err := GetPayments(0)
 	if err != nil {
-		return nil, fmt.Errorf("error fetching payments: %w", err)
+		return nil,nil,fmt.Errorf("error fetching payments: %w", err)
 	}
 	var todayPayments []Payment
+	var nextPayments []time.Time
+	today := time.Now().Truncate(24* time.Hour)
 	for _, pay := range payments {
-		today := time.Now()
-		if nextExecution(pay.Cron, today, 1 )[0] == today {
+		cronValidated := cronValidation(pay.Cron)
+		// fmt.Println("------- Start not yer in------")
+		// cronValidated.cronDescription()
+		// fmt.Println("------- END not yet in------")
+		var nextExecutions []time.Time
+		nextExecutions = cronValidated.nextExecutions(1, nextExecutions)
+		dateOnly := nextExecutions[1].Truncate(24 * time.Hour)
+		if dateOnly.Equal(today){
 			todayPayments = append(todayPayments, pay)
+			nextPayments = append(nextPayments, nextExecutions[1])
+			// fmt.Println("------- Start not yer in------")
+			// cronValidated.cronDescription()
+			// fmt.Println(nextExecutions[0].String())	
+			// fmt.Println(nextExecutions[1].String())
+			// fmt.Println("------- END not yet in------")
 		}
 	}
-	return todayPayments, nil
+	return todayPayments, nextPayments , nil
 }
 
-
-func nextExecution(cron string, date time.Time, deep int) ([]time.Time, error)  {
-	var Cron Cron
-	cronS := strings.Split(cron, " ")
-	Cron.Hour = cronS[0]
-	Cron.Minute = cronS[1]
-	Cron.Day = cronS[2]
-	Cron.Month = cronS[3]
-	Cron.Weeday = cronS[4]
-	
-	// magic regex to get logic in splitt 
-	// 
-	// "(?:\*|[0-9]+-[0-9]+)/[0-9]+|(?:\*|[0-9]+)/[0-9]+|[0-9]+-[0-9]+|[0-9]+|\*"
-
-
-		
-	for i := 0; i < deep; i++ {
-		
-		if Cron.Day == "*" {
-			Nday := time.Now().Day() + i
-		} else { 
-		if strings.Contains(Cron.Day, "*"){
-			step, _ := strings.CutPrefix(Cron.Day, "*/")  
-			istep, err := strconv.Atoi(step)
-			if err != nil {
-			return nil, fmt.Errorf("error converting step to int: %w", err)
-			}
-			Nday := time.Now().Day() + (i * int(istep))
-		} else {
-			if strings.Contains(Cron.Day, "-"){
-			limits := strings.split(Cron.Day, "-")  
-			istep, err := strconv.Atoi(step)
-			if err != nil {
-			return nil, fmt.Errorf("error converting step to int: %w", err)
-			}
-			Nday := time.Now().Day() + (i * int(istep))
-		}
-
-		}
-		}
-		if Cron.Month == "*" {
-			Nmonth := time.Now().Month()
-		} else { 
-		if strings.Contains(Cron.Month, "*"){
-			step, _ := strings.CutPrefix(Cron.Month, "*/")  
-			istep, err := strconv.Atoi(step)
-			if err != nil {
-			return nil, fmt.Errorf("error converting step to int: %w", err)
-			}
-			Nmonth := time.Now().Month() + (i * int(istep))
-
-		}
-		
+func GetNextpayments(id int, deep int)([]time.Time ,error){
+	payment, err := GetPayment(id)
+	if err != nil {
+		return nil,fmt.Errorf("error fetching payment: %w", err)
 	}
+	cronValidated := cronValidation(payment.Cron)
+	var nextExecutions []time.Time
+	nextExecutions = cronValidated.nextExecutions(deep, nextExecutions)
+	return nextExecutions , nil
 }
-
-
-

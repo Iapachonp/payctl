@@ -166,7 +166,7 @@ func GetTodaypayments()([]Payment, []time.Time ,error){
 		// cronValidated.cronDescription()
 		// fmt.Println("------- END not yet in------")
 		var nextExecutions []time.Time
-		nextExecutions = cronValidated.nextExecutions(1, nextExecutions)
+		nextExecutions = cronValidated.nextExecutions(1, nextExecutions, time.Now(), false)
 		dateOnly := nextExecutions[1].Truncate(24 * time.Hour)
 		if dateOnly.Equal(today){
 			todayPayments = append(todayPayments, pay)
@@ -188,6 +188,6 @@ func GetNextpayments(id int, deep int)([]time.Time ,error){
 	}
 	cronValidated := cronValidation(payment.Cron)
 	var nextExecutions []time.Time
-	nextExecutions = cronValidated.nextExecutions(deep, nextExecutions)
+	nextExecutions = cronValidated.nextExecutions(deep, nextExecutions, time.Now(), false)
 	return nextExecutions , nil
 }

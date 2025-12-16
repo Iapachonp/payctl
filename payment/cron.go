@@ -510,7 +510,25 @@ func nextMinute(Cron Cronn, times []time.Time, firstExecution bool) time.Duratio
 
 
 
-func(Cron Cronn) nextExecutions( n int, times []time.Time) []time.Time {
+func nextTime(Cron Cronn, times []time.Time, setTime time.Time, hour time.Duration ,minute time.Duration, day time.Duration, month time.Duration )  time.Time{
+	nextTime := time.Date(setTime.Year(), time.Month(int(month)), int(day), int(hour), int(minute), 0, 0, time.Local)
+	if slices.Contains(times, nextTime)  {
+		hour = nextHour(Cron, times, false)
+		nextTime = time.Date(setTime.Year(), setTime.Month(), setTime.Day(), int(hour), int(minute), 0, 0, time.Local)
+		if slices.Contains(times, nextTime) {
+			day = nextDay(Cron,times, false)
+			nextTime = time.Date(setTime.Year(), setTime.Month(), int(day), int(hour), int(minute), 0, 0, time.Local)
+		}
+		if slices.Contains(times, nextTime)  {
+			month = nextMonth(Cron, times, false)
+			nextTime = time.Date(setTime.Year(), time.Month(int(month)), int(day), int(hour), int(minute), 0, 0, time.Local)
+		}
+	}
+	return nextTime
+}
+
+
+func(Cron Cronn) nextExecutions( n int, times []time.Time, now time.Time, jump bool) []time.Time {
 	var month time.Duration
 	var day time.Duration
 	var hour time.Duration
@@ -520,40 +538,39 @@ func(Cron Cronn) nextExecutions( n int, times []time.Time) []time.Time {
 		return times
 	}
 	if len(times) == 0 {
-		now := time.Now().Local()
 		times = append(times, now)
 		firstExecution = true
 	}
 	setTime := times[len(times) - 1]
-	if firstExecution {
+	if firstExecution || !jump {
 		minute = nextMinute(Cron, times, true)
 		hour = nextHour(Cron, times, true)
 		day = nextDay(Cron, times, true)
 		month = nextMonth(Cron, times, true)
 
-	}else{
+	} else if jump {
+		minute = nextMinute(Cron, times, false)
+		hour = nextHour(Cron, times, false)
+		day = nextDay(Cron, times, false)
+		month = nextMonth(Cron, times, false)
+	} else{
 		minute = nextMinute(Cron, times, false)
 		hour = time.Duration(setTime.Hour())
 		day = time.Duration(setTime.Day())
 		month = time.Duration(setTime.Month())
 	}
 	// fmt.Printf("This is the one being executed ---> %s", setTime.String())
-	nextTime := time.Date(setTime.Year(), time.Month(int(month)), int(day), int(hour), int(minute), 0, 0, time.Local)
-	if slices.Contains(times, nextTime){
-		hour = nextHour(Cron, times, false)
-		nextTime = time.Date(setTime.Year(), setTime.Month(), setTime.Day(), int(hour), int(minute), 0, 0, time.Local)
-		if slices.Contains(times, nextTime){
-			day = nextDay(Cron,times, false)
-			nextTime = time.Date(setTime.Year(), setTime.Month(), int(day), int(hour), int(minute), 0, 0, time.Local)
-		}
-		if slices.Contains(times, nextTime){
-			month = nextMonth(Cron, times, false)
-			nextTime = time.Date(setTime.Year(), time.Month(int(month)), int(day), int(hour), int(minute), 0, 0, time.Local)
-		}
-	} 
-	times = append(times, nextTime)
+	nextTime := nextTime(Cron, times, setTime,hour, minute, day, month)
+	fmt.Printf("Next Time ---> %s, Before Time ---> %s \n", nextTime.String(), setTime.String() )
+	if nextTime.Before(setTime) || nextTime.Before(now) {
+		times[len(times) - 1] = nextTime
+		fmt.Printf("YESSSSSS ------> Next Time ---> %s, Before Time ---> %s \n", nextTime.String(), setTime.String() )
+		return Cron.nextExecutions(n, times, now, true)
+	} else { 
+		times = append(times, nextTime)
+	}
 	// times = append(times, time.Date(setTime.Year(), setTime.Month(), setTime.Day(), int(hour), int(minute), 0, 0, time.Local))
-	return Cron.nextExecutions(n, times) 
+	return Cron.nextExecutions(n, times, now, false) 
 }
 
 func cronValidation(cron string)  Cronn {

@@ -13,7 +13,7 @@ import (
 var todaycmd = &cobra.Command{
 	Use: "today",
 	Aliases: []string{"td", "tdy", "now"},
-	Short: "Base today object to use payctl",
+	Short: "today helps you to get today's payments",
 	Long: "today is the base object to get payments that needs to be paid today date.",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Command logic here
